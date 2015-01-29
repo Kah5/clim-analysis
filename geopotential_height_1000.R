@@ -1,5 +1,6 @@
 #Zonal Index Calculations
-#using NARR NetCDF datafiles
+#using NARR NetCDF datafiles:
+#NCEP Reanalysis data provided by the NOAA/OAR/ESRL PSD, Boulder, Colorado, USA, from their Web site at http://www.esrl.noaa.gov/psd/ 
 
 library(sp)
 library(raster)
@@ -170,31 +171,7 @@ colnames(zonal.table)<-c("hemispheric zonal index", "east zonal index", "west zo
 
 write.csv(zonal.table, file="geopthgt1980_2013.csv",sep=",", col.names=TRUE)
 
-#calculate 
-#subset(july.merge, subset = july.merge$lat>55 & jul  )
-#mean<-aggregate(July_1979~lon, data=df, FUN=function(df) c(mean=mean(df), count=length(df)))
-#writeRaster(july.hgt[[1]], filename="julyhgt.tif", overwrite=TRUE) # saves raster so we dont use memory
-#mean_lon_hgt<-data.frame(mean[1:94019,2])
-#mean.long.hgt<-data.frame(mean_lon_hgt$mean)
-#Lon<-data.frame(mean[1:94019,1])
-#plot(Lon[1:90000,],mean.long.hgt[1:90000,], main="uwnd long term July average by longitude")
 
-#library("maps")
-#map(add=TRUE, col="blue")
-#plot(july.hgt[[2]])
-#df2<-rasterToPoints(july.hgt[[2]])
-
-#proj4string(hgt.ltm)=CRS("+init=epsg:4326") # set it to lat-long
-#pts = spTransform(hgt.ltm,CRS(proj4string))
-#Lambert.CC<-CRS("+proj=lcc +lat_1=48 +lat_2=33 +lon_0=-100 +ellps=WGS84")
-              
- #               +lat_2=85.33255 +lat_1=0.897945 +lon_0=179.9 +lon_1=-179.9969")
-
-#hgt.ltm.prj<-projectRaster(hgt.ltm, crs= Lambert.CC)
-
-#projection(hgt.ltm.prj)<-Lambert.CC
-#extent(hgt.ltm.prj)<-Lambert.CC
-#envtl.all
 
 
 
