@@ -91,31 +91,31 @@ julys<-rasterToPoints(july.hgt)
 plot(julys)
 points(lonlat, col = "red")
 
-julys.lonlat<-data.frame(julys[,1:3])
-julys.lonlat$x<-lonlat$X1
+julys.lonlat<-data.frame(julys)
+#julys.lonlat$x<-lonlat$X1
 
 
 # Specify the lonlat as spatial points with projection as long/lat
-lonlat <- SpatialPoints(lonlat, proj4string = CRS("+proj=longlat +datum=WGS84"))
+#lonlat <- SpatialPoints(lonlat, proj4string = CRS("+proj=longlat +datum=WGS84"))
 
-mycrs <- CRS("+proj=lcc +lat_1=35 +lat_2=51 +lat_0=39 +lon_0=14 +k=0.684241 +units=m +datum=WGS84 +no_defs")
-require(rgdal)
-plonlat <- spTransform(lonlat, CRSobj = mycrs)
-plonlat
-extent(plonlat)
-projection(july.hgt) <- mycrs
-extent(july.hgt)<-extent(plonlat)
+#mycrs <- CRS("+proj=lcc +lat_1=35 +lat_2=51 +lat_0=39 +lon_0=14 +k=0.684241 +units=m +datum=WGS84 +no_defs")
+#require(rgdal)
+#plonlat <- spTransform(lonlat, CRSobj = mycrs)
+#plonlat
+#extent(plonlat)
+#projection(july.hgt) <- mycrs
+#extent(july.hgt)<-extent(plonlat)
 # Take a look
-july.hgt
-plot(july.hgt[[1]])
+#july.hgt
+#plot(july.hgt[[1]])
 
-july.hgt.proj <- projectRaster(july.hgt, crs=mycrs)
+#july.hgt.proj <- projectRaster(july.hgt, crs=mycrs)
 
-july.pts<-rasterToPoints(july.hgt)
+#july.pts<-rasterToPoints(july.hgt)
 
 #using merge...not sure how accurate this is
 lat.lon.coords<-merge(plon, plat)
-july.merge<-merge(july.pts, lat.lon.coords)
+july.merge<-merge(julys.lonlat, lat.lon.coords)
 
 years<-as.character(1979:2013)
 colnames(july.merge)<-c("x", "y", years, "lon", "lat")
@@ -127,20 +127,48 @@ july.merge55<-july.merge55[july.merge55$lat <56,]
 july.merge35<-july.merge[july.merge$lat >35,]
 july.merge35<-july.merge35[july.merge35$lat <36,]
 
-#this does not seem right....
-mean(july.merge35[,4])
+#there is probably a more elegant way to do this..
 zonal.index<-matrix(0,37,1)
 for(i in 3:37){
   zonal.index[i]<-mean(july.merge35[,i])-mean(july.merge55[,i])
 }
  
-
 zonal.index.plot<-cbind(as.numeric(years),zonal.index[3:37])
 plot(zonal.index.plot, type="l", main="July Surface zonal index at 1000mb geopotential height", xlab="Year", ylab="zonal index")# plots the time series of zonal index
 
+#for eastern zonal index
+july.merge.east.35<-july.merge35[july.merge35$lon>-90,]
+july.merge.east.55<-july.merge55[july.merge55$lon>-90,]
+zonal.index.east<-matrix(0,37,1)
+for(i in 3:37){
+  zonal.index.east[i]<-mean(july.merge.east.35[,i])-mean(july.merge.east.55[,i])
+}
+zonal.index.E.plot<-cbind(as.numeric(years),zonal.index.east[3:37])
+plot(zonal.index.E.plot, type="l", main="July Surface zonal index at 1000mb geopotential height", xlab="Year", ylab="zonal index")
 
+
+
+#for western zonal index
+july.merge.west.35<-july.merge35[july.merge35$lon<-90,]
+july.merge.west.55<-july.merge55[july.merge55$lon<-90,]
+zonal.index.west<-matrix(0,37,1)
+for(i in 3:37){
+  zonal.index.west[i]<-mean(july.merge.west.35[,i])-mean(july.merge.west.55[,i])
+}
+
+zonal.index.W.plot<-cbind(as.numeric(years),zonal.index.west[3:37])
+plot(zonal.index.W.plot, type="l", main="July Surface zonal index at 1000mb geopotential height", xlab="Year", ylab="zonal index")
 #next step is to get mean annual precipitation for these years on the scale of our data
 
+plot(zonal.index.plot, type="l", main="July Surface zonal index at 1000mb geopotential height", xlab="Year", ylab="zonal index")
+lines(zonal.index.E.plot, col="red")
+lines(zonal.index.W.plot, col="green")
+#make legend
+
+zonal.table<-cbind(zonal.index, zonal.index.east, zonal.index.west)
+colnames(zonal.table)<-c("hemispheric zonal index", "east zonal index", "west zonal index")
+
+write.csv(zonal.table, file="geopthgt1980_2013.csv",sep=",", col.names=TRUE)
 
 #calculate 
 #subset(july.merge, subset = july.merge$lat>55 & jul  )
