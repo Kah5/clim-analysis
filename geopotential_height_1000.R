@@ -18,6 +18,7 @@ uwnd<-brick(h,lvar=4, varname="uwnd", level=6)
 
 #plotting all of the months of July Uwind (at 10m)
 uwnd.pts<-rasterToPoints(uwnd)
+X11(width=11)
 plot(uwnd.pts)
 df <- data.frame(uwnd.pts)
 #Make appropriate column headings
@@ -32,8 +33,8 @@ h<-"C:/Users/Kelly/Documents/Undergrad_projects/hgt.mon.mean.nc"
 hgt.mon.mean<-brick(h,lvar=4, varname="hgt", level=6)
 
 mean_wnd_profile<-aggregate(Uwnd_July_1980~Lon, data=df, FUN=function(df) c(mean=mean(df), count=length(df)))
-mean_wnd<-mean_wnd_profile[1:491,2]
-Lon<-mean_wnd_profile[1:491,1]
+mean_wnd<-mean_wnd_profile[1:277,2]
+Lon<-mean_wnd_profile[1:277,1]
 plot(mean_wnd[,1], Lon, main="uwnd long term July average by longitude")
 
 mean_wnd_lat_Profile<-aggregate(Uwnd_July_1980~Lat, data=df, FUN=function(df) c(mean=mean(df), count=length(df)))
@@ -169,7 +170,7 @@ lines(zonal.index.W.plot, col="green")
 zonal.table<-cbind(zonal.index, zonal.index.east, zonal.index.west)
 colnames(zonal.table)<-c("hemispheric zonal index", "east zonal index", "west zonal index")
 
-write.csv(zonal.table, file="geopthgt1980_2013.csv",sep=",", col.names=TRUE)
+write.csv(zonal.table, file="geopthgt1980_2013.csv")
 
 
 
