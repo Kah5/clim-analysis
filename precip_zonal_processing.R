@@ -74,24 +74,35 @@ df.all<-cbind(df.byyear,zonal.index)
 
 
 #df.zonal<-data.frame(rep(zonal.index[1:36,],4))
-
 cor.by.pt<-matrix(0,1, 13628)
 for (i in 1:13628){
-cor.by.pt[,i]<-cor(df.all[3:36,i],df.all[3:36,13628])
+  cor.by.pt[,i]<-cor.test(df.all[3:36,i],df.all[3:36,13628], type="pearson")$estimate
 }
+
+p.value.pts<-matrix(0,1, 13628)
+for (i in 1:13628){
+p.value.pts[,i]<-cor.test(df.all[3:36,i],df.all[3:36,13628], type="pearson")$p.value
+}
+
+ps<-p.value.pts
+#assign all non significant cells a "1"
+ps[ps>0.05]<-1
+
 #cors<-t(point1[])
 ll<-t(df.byyear[1:2,])
 ###fix this
 correlation<-cbind(ll,cor.by.pt[,1:13627])
+pvalue<-cbind(ll, ps[,1:13627])
 
 colnames(correlation)<-c( "x","y", "Correlation")
-
+colnames(pvalue)<-c("x","y", "p.value")
 correlation<-data.frame(correlation)
+pvalue<-data.frame(pvalue)
 #correlation$Latitude<-correlation$Latitude-180
 #correlation$Longitude<-correlation$Longitude-180
 
 july.cor<-correlation
-
+july.sig<-pvalue
 #plot the correlations on the map
 
 # set up an 'empty' raster, here via an extent object derived from your data
@@ -107,6 +118,20 @@ x <- rasterize(july.cor[, 1:2], r, july.cor[,3], fun=mean)
 x11(width=11)
 plot(x, xlim=c(220,360), ylim=c(25,50))
 
+###for p values
+###
+# set up an 'empty' raster, here via an extent object derived from your data
+ep <- extent(july.sig[,1:2])
+ep <- ep + 50 # add this as all y's are the same
+
+rp <- raster(ep, ncol=120, nrow=300)
+# or r <- raster(xmn=, xmx=,  ...
+
+# you need to provide a function 'fun' for when there are multiple points per cell
+rastp<- rasterize(july.sig[, 1:2], rp, july.sig[,3], fun=mean)
+
+x11(width=11)
+plot(rastp, xlim=c(220,360), ylim=c(25,50))
 #these plots are kinda crappy looking
 
 #check this out: http://gis.stackexchange.com/questions/61243/clipping-a-raster-in-r
@@ -119,9 +144,20 @@ plot(pp, add=TRUE)
 
 rr <- mask(x, pp)
 
+plot(rastp)
+plot(pp, add=TRUE)
+
+signif <- mask(rastp, pp)
+
+
+
 #this looks strange because of the points to raster conversion...
 X11(width=11)
-plot(rr, xlim=c(-106.65, -75),ylim=c(24, 52), main="Correlation between Zonal Index and Precipitation " )
+plot(rr, xlim=c(-130.65, -65),ylim=c(24, 52), main="Correlation between Zonal Index and Precipitation " )
+plot(pp, add=TRUE)
+
+X11(width=11)
+plot(rastp, xlim=c(-130.65, -65),ylim=c(24, 52), main="Significance of Correlation between Zonal Index and Precipitation " )
 plot(pp, add=TRUE)
 #need raster and data in same prjection
 #raster coordinates
